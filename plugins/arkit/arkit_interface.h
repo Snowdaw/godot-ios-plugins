@@ -83,8 +83,8 @@ private:
 	real_t ambient_intensity;
 	real_t ambient_color_temperature;
 
-	Transform transform;
-	CameraMatrix projection;
+	Transform3D transform;
+	Projection projection;
 	float eye_height, z_near, z_far;
 
 	Ref<CameraFeed> feed;
@@ -125,22 +125,27 @@ public:
 	/* while Godot has its own raycast logic this takes ARKits camera into account and hits on any ARAnchor */
 	Array raycast(Vector2 p_screen_coord);
 
-	virtual void notification(int p_what) GODOT_ARKIT_OVERRIDE;
+	virtual void notification(int p_what);
 
 	virtual StringName get_name() const GODOT_ARKIT_OVERRIDE;
-	virtual int get_capabilities() const GODOT_ARKIT_OVERRIDE;
+	virtual uint32_t get_capabilities() const GODOT_ARKIT_OVERRIDE;
 
 	virtual bool is_initialized() const GODOT_ARKIT_OVERRIDE;
 	virtual bool initialize() GODOT_ARKIT_OVERRIDE;
 	virtual void uninitialize() GODOT_ARKIT_OVERRIDE;
 
-	virtual Size2 get_render_targetsize() GODOT_ARKIT_OVERRIDE;
-	virtual bool is_stereo() GODOT_ARKIT_OVERRIDE;
-	virtual Transform get_transform_for_eye(GodotBaseARInterface::Eyes p_eye, const Transform &p_cam_transform) GODOT_ARKIT_OVERRIDE;
-	virtual CameraMatrix get_projection_for_eye(GodotBaseARInterface::Eyes p_eye, real_t p_aspect, real_t p_z_near, real_t p_z_far) GODOT_ARKIT_OVERRIDE;
-	virtual void commit_for_eye(GodotBaseARInterface::Eyes p_eye, RID p_render_target, const Rect2 &p_screen_rect) GODOT_ARKIT_OVERRIDE;
+	virtual Size2 get_render_targetsize();
+	virtual bool is_stereo();
+	virtual Transform3D get_transform_for_view(uint32_t p_eye, const Transform3D &p_cam_transform) GODOT_ARKIT_OVERRIDE;
+	virtual Projection get_projection_for_view(uint32_t p_eye, double p_aspect, double p_z_near, double p_z_far) GODOT_ARKIT_OVERRIDE;
+	virtual Vector<BlitToScreen> post_draw_viewport(RID p_render_target, const Rect2 &p_screen_rect) GODOT_ARKIT_OVERRIDE;
 
 	virtual void process() GODOT_ARKIT_OVERRIDE;
+
+	virtual Transform3D get_camera_transform() GODOT_ARKIT_OVERRIDE;
+	virtual uint32_t get_view_count() GODOT_ARKIT_OVERRIDE;
+	virtual Size2 get_render_target_size() GODOT_ARKIT_OVERRIDE;
+	virtual Dictionary get_system_info() GODOT_ARKIT_OVERRIDE;
 
 	// called by delegate (void * because C++ and Obj-C don't always mix, should really change all platform/ios/*.cpp files to .mm)
 	void _add_or_update_anchor(GodotARAnchor *p_anchor);
